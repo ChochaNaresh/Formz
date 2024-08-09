@@ -24,12 +24,12 @@ from flutter package
 **Groovy**
 ```groovy
 dependencyResolutionManagement {
-		repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-		repositories {
-			mavenCentral() // // For Formz library, this line is enough. Although, it has been published on jitpack as well
-			maven { url 'https://jitpack.io' } // //Make sure to add this in your project
-		}
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+		mavenCentral() // // For Formz library, this line is enough. Although, it has been published on jitpack as well
+		maven { url 'https://jitpack.io' } // //Make sure to add this in your project
 	}
+}
 ```
 
 ```groovy

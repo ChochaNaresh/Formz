@@ -116,10 +116,12 @@ object Formz {
  *
  * ```kotlin
  * class LoginFormState(
- *   val username: RegexInput = RegexInput(regex = RegularExpressions.userName, isPure = true),
- *    val password: RegexInput = RegexInput(regex = RegularExpressions.password, isPure = true)
- * ) : FormzMixin {
- *    override val inputs: List<FormzInput<*, *>> = listOf(username, password)
+ *     val username = Username(isPure = true),
+ *     val password = Password(isPure = true)
+ * ) : FormzInterface {
+ *
+ *     override val inputs: List<FormzInput<*, *>> = listOf(username, password)
+ *
  * }
  * ```*/
 interface FormzInterface {

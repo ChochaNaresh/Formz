@@ -6,13 +6,12 @@ plugins {
 
 android {
     namespace = "com.nareshchocha.sample"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        //applicationId = "com.nareshchocha.formz"
         applicationId = "com.nareshchocha.sample"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -32,24 +31,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.valueOf(libs.versions.jdkVersion.get())
+        targetCompatibility = JavaVersion.valueOf(libs.versions.jdkVersion.get())
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = JavaVersion.valueOf(libs.versions.jdkVersion.get()).toString()
     }
     buildFeatures {
         compose = true
-    }
-
-    composeCompiler {
-        enableStrongSkippingMode = true
-        // kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
 }
 

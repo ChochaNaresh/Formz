@@ -6,11 +6,10 @@ plugins {
 
 android {
     namespace = "com.nareshchocha.formz"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        //applicationId = "com.nareshchocha.formz"
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

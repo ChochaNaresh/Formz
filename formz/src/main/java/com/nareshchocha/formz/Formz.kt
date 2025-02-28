@@ -1,76 +1,51 @@
 package com.nareshchocha.formz
 
-import com.nareshchocha.formz.utilities.extentions.isNull
 import java.util.Objects
 
-
-/** Enum representing the submission status of a form.*/
-enum class FormzSubmissionStatus {
-    /** The form has not yet been submitted.*/
-    INITIAL,
-
-    /** The form is in the process of being submitted.*/
-    IN_PROGRESS,
-
-    /** The form has been submitted successfully.*/
-    SUCCESS,
-
-    /** The form submission failed.*/
-    FAILURE,
-
-    /** The form submission has been canceled.*/
-    CANCELED;
-
-    /** Indicates whether the form has not yet been submitted.*/
-    fun isInitial() = this == INITIAL;
-
-    /** Indicates whether the form is in the process of being submitted.*/
-    fun isInProgress() = this == IN_PROGRESS;
-
-    /** Indicates whether the form has been submitted successfully.*/
-    fun isSuccess() = this == SUCCESS;
-
-    /** Indicates whether the form submission failed.*/
-    fun isFailure() = this == FAILURE;
-
-    /** Indicates whether the form submission has been canceled.*/
-    fun isCanceled() = this == CANCELED;
-
-    /** Indicates whether the form is either in progress or has been submitted
-     * successfully.
-     *
-     * This is useful for showing a loading indicator or disabling the submit
-     * button to prevent duplicate submissions.*/
-    fun isInProgressOrSuccess() = isInProgress() || isSuccess()
+/**
+ * Represents the result of a validation.
+ */
+sealed class ValidationResult<out E> {
+    data object Success : ValidationResult<Nothing>()
+    data class Failure<E>(val error: E) : ValidationResult<E>()
 }
 
 abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
 
-    /** Whether the [FormzInput] value is valid according to the
-     * overridden `validator`.
+    /**
+     * Validates the given [value] and returns a [ValidationResult].
      *
-     * Returns `true` if `validator` returns `null` for the
-     * current [FormzInput] value and `false` otherwise.*/
-    fun isValid() = validator(value) == null
+     * @param value The value to validate.
+     * @return [ValidationResult.Success] if valid; otherwise, [ValidationResult.Failure].
+     */
+    abstract fun validator(value: T): ValidationResult<E>
 
-    /** Whether the [FormzInput] value is not valid.
-     * A value is invalid when the overridden `validator`
-     * returns an error (non-null value).*/
-    val isNotValid: Boolean
-        get() = !displayError().isNull
+    /**
+     * Returns `true` if the [validator] returns [ValidationResult.Success],
+     * indicating that the input value is valid.
+     */
+    fun isValid(): Boolean = validator(value) == ValidationResult.Success
 
-    /** Returns a validation error if the [FormzInput] is invalid.
-     * Returns `null` if the [FormzInput] is valid.*/
-    fun error() = validator(value)
+    /**
+     * Returns a [ValidationResult.Failure] if validation fails, or `null` if it succeeds.
+     *
+     * This method caches the result of [validator] to avoid duplicate computation.
+     */
+    fun error(): ValidationResult.Failure<E>? {
+        val result = validator(value)
+        return when (result) {
+            is ValidationResult.Failure -> result
+            ValidationResult.Success -> null
+        }
+    }
 
-    /** The error to display if the [FormzInput] value
-     * is not valid and has been modified.*/
-    fun displayError() = if (isPure) null else error()
-
-    /** A function that must return a validation error if the provided
-     * [value] is invalid and `null` otherwise.*/
-    abstract fun validator(value: T): E?
-
+    /**
+     * Returns the error to display.
+     *
+     * If the input is still pure (unmodified), no error is displayed.
+     */
+    fun displayError(): ValidationResult.Failure<E>? =
+        if (isPure) null else error()
 
     override fun hashCode(): Int {
         return Objects.hash(value, isPure)
@@ -91,29 +66,29 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
     }
 }
 
-/** Class which contains methods that help manipulate and manage
- * validity of [FormzInput] instances.*/
+/**
+ * Provides helper methods to manage and validate [FormzInput] instances.
+ */
 object Formz {
-    /** Returns a [bool] given a list of [FormzInput] indicating whether
-     * the inputs are all valid.*/
+    /**
+     * Returns `true` if all provided inputs are valid.
+     */
     fun validate(inputs: List<FormzInput<*, *>>): Boolean {
         return inputs.all { it.isValid() }
     }
 
-    /** Returns a [bool] given a list of [FormzInput] indicating whether
-     * all the inputs are pure.*/
+    /**
+     * Returns `true` if all provided inputs are still pure.
+     */
     fun isPure(inputs: List<FormzInput<*, *>>): Boolean {
         return inputs.all { it.isPure }
     }
 }
 
-
-/** Interface that automatically handles validation of all [FormzInput]s present in
- * the [inputs].
+/**
+ * Interface to automatically handle validation for all [FormzInput] instances.
  *
- * When interface this in, you are required to override the [inputs] getter and
- * provide all [FormzInput]s you want to automatically validate.
- *
+ * Example usage:
  * ```kotlin
  * class LoginFormState(
  *     val username = Username(isPure = true),
@@ -121,29 +96,36 @@ object Formz {
  * ) : FormzInterface {
  *
  *     override val inputs: List<FormzInput<*, *>> = listOf(username, password)
- *
  * }
- * ```*/
+ * ```
+ */
 interface FormzInterface {
-    /** Whether the [FormzInput] values are all valid.*/
+    /**
+     * All the [FormzInput] instances that need to be validated.
+     */
+    val inputs: List<FormzInput<*, *>>
+
+    /**
+     * Returns `true` if all the inputs are valid.
+     */
     val isValid: Boolean
         get() = Formz.validate(inputs)
 
-    /** Whether the [FormzInput] values are not all valid.*/
+    /**
+     * Returns `true` if at least one of the inputs is invalid.
+     */
     val isNotValid: Boolean
         get() = !isValid
 
-    /** Whether all of the [FormzInput] are pure.*/
+    /**
+     * Returns `true` if all the inputs are pure.
+     */
     val isPure: Boolean
         get() = Formz.isPure(inputs)
 
-    /** Whether at least one of the [FormzInput]s is dirty.*/
+    /**
+     * Returns `true` if at least one of the inputs has been modified (is dirty).
+     */
     val isDirty: Boolean
         get() = !isPure
-
-    /** Returns all [FormzInput] instances.
-     *
-     * Override this and give it all [FormzInput]s in your class that should be
-     * validated automatically.*/
-    val inputs: List<FormzInput<*, *>>
 }

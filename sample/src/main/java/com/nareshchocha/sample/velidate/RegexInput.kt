@@ -1,6 +1,7 @@
 package com.nareshchocha.sample.velidate
 
 import com.nareshchocha.formz.FormzInput
+import com.nareshchocha.formz.ValidationResult
 
 
 class RegexInput(
@@ -9,13 +10,13 @@ class RegexInput(
     value: String = "",
     isPure: Boolean = true
 ) : FormzInput<String, ValidationError>(value, isPure) {
-    override fun validator(value: String): ValidationError? {
+    override fun validator(value: String): ValidationResult<ValidationError> {
         return if (value.isEmpty()) {
-            if (skipEmpty) null else ValidationError.EMPTY
+            if (skipEmpty) ValidationResult.Success else ValidationResult.Failure(ValidationError.EMPTY)
         } else if (!Regex(regex).matches(value)) {
-            ValidationError.INVALID
+            ValidationResult.Failure(ValidationError.INVALID)
         } else {
-            null
+            ValidationResult.Success
         }
     }
 

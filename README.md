@@ -1,6 +1,8 @@
 
 # Formz
 
+[![](https://jitpack.io/v/ChochaNaresh/Formz.svg)](https://jitpack.io/#ChochaNaresh/Formz) [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21) ![Language](https://img.shields.io/badge/language-Kotlin-orange.svg) ![Language](https://img.shields.io/badge/Kotlin-2.1.0-blue)
+
 **Formz** is a lightweight validation framework for Android forms written in Kotlin. It provides a simple, yet powerful way to define, validate, and manage form inputs in your Android applications. The library is designed with immutability and performance in mind, ensuring that expensive validation logic is computed only once per input.
 
 

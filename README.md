@@ -1,25 +1,39 @@
+
 # Formz
 
+**Formz** is a lightweight validation framework for Android forms written in Kotlin. It provides a simple, yet powerful way to define, validate, and manage form inputs in your Android applications. The library is designed with immutability and performance in mind, ensuring that expensive validation logic is computed only once per input.
 
 
-## Formz form validation in library for Android
-This library is designed to simplify the process of validating form in simplify way.
+## Features
 
-[![](https://jitpack.io/v/ChochaNaresh/Formz.svg)](https://jitpack.io/#ChochaNaresh/Formz)
-[![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
-![Language](https://img.shields.io/badge/language-Kotlin-orange.svg)
-![Language](https://img.shields.io/badge/Kotlin-2.0.0-blue)
 
-## GIF
-<img src="./images/app_demo.gif"/>
+**Immutable Form Inputs:**
+
+    Define form inputs as immutable objects to ensure consistency and safety.
+
+**Lazy Validation Caching:**
+
+    Validation results are cached using Kotlin's lazy properties to avoid duplicate computations.
+
+**Extensible Validation Logic:**
+
+    Extend the FormzInput class and implement custom validation logic for your specific needs.
+
+**Interface for Form State:**
+
+    Use the FormzInterface to automatically handle the validation status of multiple form inputs.
+
 
 ## inspire from
+
 inspire from **Very Good Ventures** 🦄
 from flutter package
 [formz](https://pub.dev/packages/formz)
+## Installation
 
-### How to use
-**How to add dependencies**
+To include Formz in your project, simply add the source files to your Kotlin Android project. If you decide to publish the library later, you can host it on JitPack or another Maven repository for easier integration.
+
+### How to add dependencies
 
 **Groovy**
 ```groovy
@@ -62,76 +76,111 @@ dependencies {
 ## Version
 Where `$libVersion` = [![](https://jitpack.io/v/ChochaNaresh/Formz.svg)](https://jitpack.io/#ChochaNaresh/Formz)
 
-## Create a FormzInput
+## Usage
+
+
+**Defining a Custom Form Input**
+
+Extend FormzInput to create your own input type with custom validation logic. For example, here’s how you might define a simple non-empty string input:
+
 ```kotlin
-import com.nareshchocha.formz.FormzInput
+package com.nareshchocha.formz
 
-enum class NameInputError { Empty }
-
-
-class NameInput(
-    value: String = "",
-    isPure: Boolean = true
-) : FormzInput<String, NameInputError>(value, isPure) {
-    override fun validator(value: String): NameInputError? {
-        return if (value.isEmpty()) NameInputError.Empty else null
-    }
-
-    fun copy(value: String, isPure: Boolean = false): NameInput {
-        return NameInput(value, isPure = isPure)
+// Custom input that validates that a string is not empty.
+class NonEmptyInput(value: String, isPure: Boolean) : FormzInput<String, String>(value, isPure) {
+    override fun validator(value: String): ValidationResult<String> {
+        return if (value.trim().isEmpty()) {
+            ValidationResult.Failure("Field cannot be empty")
+        } else {
+            ValidationResult.Success
+        }
     }
 }
 ```
-## Interact with a FormzInput
+**Defining a Form State**
+
+Implement the FormzInterface to bundle your form inputs together. This allows you to check the overall validation state of the form easily.
 ```kotlin
-val name = NameInput()
-println(name.value) // ''
-println(name.isValid) // false
-println(name.error) // NameInputError.empty
-println(name.displayError) // null
+package com.nareshchocha.formz
 
-val joe = NameInput(value = "joe")
-println(joe.value) // 'joe'
-println(joe.isValid) // true
-println(joe.error) // null
-println(joe.displayError) // null
-```
-## Validate Multiple FormzInput Items
-```kotlin
-val validInputs = listOf(
-    NameInput(value = "jan", false),
-    NameInput(value = "jen", false),
-    NameInput(value = "joe", false)
-)
-
-println(Formz.validate(validInputs)) // true
-
-val invalidInputs = listOf(
-    NameInput(isPure=false),
-    NameInput(isPure=false),
-    NameInput(isPure=false)
-)
-
-println(Formz.validate(invalidInputs)) // false
-```
-## Automatic Validation
-
-```kotlin
-class LoginFormState(   
-    val username : Username = Username(isPure = true),
-    val password : Password = Password(isPure = true)
+class LoginFormState(
+    val username: NonEmptyInput,
+    val password: NonEmptyInput
 ) : FormzInterface {
-    
-    override val inputs: List<FormzInput<*, *>> = listOf(username, password)
-
+    override val inputs: List<FormzInput<*, *>>
+        get() = listOf(username, password)
 }
 ```
-## Compatibility
-* Library - Android Lollipop 5.0+ (API 21)
-* Sample - Android Lollipop 5.0+ (API 21)
-## Contributing
 
-Contributions are always welcome!
+**Checking Validation**
+
+You can now use the provided helper functions to validate the entire form:
+
+```kotlin
+val loginForm = LoginFormState(
+    username = NonEmptyInput("user123", isPure = false),
+    password = NonEmptyInput("", isPure = false)
+)
+
+if (loginForm.isValid) {
+    // Proceed with form submission
+} else {
+    // Display validation errors
+    println("Username error: ${loginForm.username.displayError()?.error}")
+    println("Password error: ${loginForm.password.displayError()?.error}")
+}
+```
+
+
+## API Reference
+## ```FormzInput```
+
+**Properties:**
+
+```value```: The input's current value.
+
+```isPure```: A flag indicating whether the input has been modified.
+
+**Methods:**
+
+```abstract fun validator(value: T): ValidationResult<E>```: Implement your custom validation logic.
+
+```fun isValid()```: Boolean: Returns true if the input is valid.
+
+```fun error(): ValidationResult.Failure<E>?```: Returns the validation error if one exists.
+
+```fun displayError(): ValidationResult.Failure<E>?```: Returns the error to display only if the input is not pure.
+
+## ```ValidationResult```
+A sealed class representing the result of a validation:
+
+```ValidationResult.Success```: Indicates successful validation.
+
+```ValidationResult.Failure<E>(val error: E)```: Indicates validation failure with an error message.
+
+## ```Formz```
+Utility object for working with collections of FormzInput:
+
+```fun validate(inputs: List<FormzInput<*, *>>): Boolean```
+
+```fun isPure(inputs: List<FormzInput<*, *>>): Boolean```
+
+## ```FormzInterface```
+An interface that automatically handles form validation:
+
+```val inputs: List<FormzInput<*, *>>```
+
+```val isValid: Boolean```
+
+```val isNotValid: Boolean```
+
+```val isPure: Boolean```
+
+```val isDirty: Boolean```
+
+## Contributing
+Contributions are welcome! If you find any bugs or want to add new features, please fork the repository and submit a pull request. Make sure to follow the existing code style and include tests for your changes.
+
 ## Support
 
 For support, email  chochanaresh0@gmail.com or join our Slack channel.
@@ -140,7 +189,7 @@ For support, email  chochanaresh0@gmail.com or join our Slack channel.
 
 ## License
 ```text
-Copyright 2023 Naresh chocha
+Copyright 2025 Naresh chocha
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

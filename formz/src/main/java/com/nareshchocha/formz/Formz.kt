@@ -31,9 +31,10 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
 
     /**
      * Returns `true` if the cached validation result is [ValidationResult.Success],
-     * indicating that the input value is valid.
+     * indicating that the input value is valid. If the input is still pure (unmodified),
+     * it is considered valid by default.
      */
-    fun isValid(): Boolean = validationResult == ValidationResult.Success
+    fun isValid(): Boolean = if (isPure) true else validationResult == ValidationResult.Success
 
     /**
      * Returns a [ValidationResult.Failure] if validation fails, or `null` if it succeeds.
@@ -50,8 +51,8 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
      *
      * If the input is still pure (unmodified), no error is displayed.
      */
-    fun displayError(): ValidationResult.Failure<E>? =
-        if (isPure) null else error()
+    fun displayError(): E? =
+        if (isPure) null else error()?.error
 
     override fun hashCode(): Int {
         return Objects.hash(value, isPure)

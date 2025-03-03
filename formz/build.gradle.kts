@@ -45,7 +45,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "com.github.ChochaNaresh"
             artifactId = "formz"
-            version = "0.0.1"
+            version = "0.0.5"
 
             afterEvaluate {
                 from(components["release"])

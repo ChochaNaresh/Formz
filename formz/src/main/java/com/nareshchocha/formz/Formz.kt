@@ -10,7 +10,16 @@ sealed class ValidationResult<out E> {
     data class Failure<E>(val error: E) : ValidationResult<E>()
 }
 
+/**
+ * Abstract class representing a form input that can be validated.
+ *
+ * @param T The type of the input's value.
+ * @param E The type of the validation error.
+ */
 abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
+
+    // Cache the validation result. Since 'value' is immutable, this is safe.
+    private val validationResult: ValidationResult<E> by lazy { validator(value) }
 
     /**
      * Validates the given [value] and returns a [ValidationResult].
@@ -21,20 +30,17 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
     abstract fun validator(value: T): ValidationResult<E>
 
     /**
-     * Returns `true` if the [validator] returns [ValidationResult.Success],
+     * Returns `true` if the cached validation result is [ValidationResult.Success],
      * indicating that the input value is valid.
      */
-    fun isValid(): Boolean = validator(value) == ValidationResult.Success
+    fun isValid(): Boolean = validationResult == ValidationResult.Success
 
     /**
      * Returns a [ValidationResult.Failure] if validation fails, or `null` if it succeeds.
-     *
-     * This method caches the result of [validator] to avoid duplicate computation.
      */
     fun error(): ValidationResult.Failure<E>? {
-        val result = validator(value)
-        return when (result) {
-            is ValidationResult.Failure -> result
+        return when (validationResult) {
+            is ValidationResult.Failure -> validationResult as ValidationResult.Failure<E>
             ValidationResult.Success -> null
         }
     }

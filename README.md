@@ -8,19 +8,15 @@
 
 
 **Immutable Form Inputs:**
-
 ```Define form inputs as immutable objects to ensure consistency and safety.```
 
 **Lazy Validation Caching:**
-
 ```Validation results are cached using Kotlin's lazy properties to avoid duplicate computations.```
 
 **Extensible Validation Logic:**
-
 ```Extend the FormzInput class and implement custom validation logic for your specific needs.```
 
 **Interface for Form State:**
-
 ```Use the FormzInterface to automatically handle the validation status of multiple form inputs.```
 
 

@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(14.dp)
+                            .padding(innerPadding)
                     )
                 }
             }
@@ -75,7 +76,7 @@ fun AllComponents(modifier: Modifier = Modifier) {
             label = {
                 Text(text = "Test")
             },
-            isError = testInputTextField.isNotValid,
+            isError = !testInputTextField.isValid(),
             errorMassage = testInputTextField.displayError()
                 ?.getErrorMessage("Test"),
             keyboardOptions = KeyboardOptions(
@@ -88,7 +89,7 @@ fun AllComponents(modifier: Modifier = Modifier) {
 
         PasswordTextField(
             value = passwordInputTextField.value,
-            isError = passwordInputTextField.isNotValid,
+            isError = !passwordInputTextField.isValid(),
             errorMassage = passwordInputTextField.displayError()
                 ?.getErrorMessage("Password"),
             onValueChange = {

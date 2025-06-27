@@ -7,7 +7,10 @@ import java.util.Objects
  */
 sealed class ValidationResult<out E> {
     data object Success : ValidationResult<Nothing>()
-    data class Failure<E>(val error: E) : ValidationResult<E>()
+
+    data class Failure<E>(
+        val error: E
+    ) : ValidationResult<E>()
 }
 
 /**
@@ -16,8 +19,10 @@ sealed class ValidationResult<out E> {
  * @param T The type of the input's value.
  * @param E The type of the validation error.
  */
-abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
-
+abstract class FormzInput<T, E>(
+    val value: T,
+    val isPure: Boolean
+) {
     // Cache the validation result. Since 'value' is immutable, this is safe.
     private val validationResult: ValidationResult<E> by lazy { validator(value) }
 
@@ -39,24 +44,20 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
     /**
      * Returns a [ValidationResult.Failure] if validation fails, or `null` if it succeeds.
      */
-    fun error(): ValidationResult.Failure<E>? {
-        return when (validationResult) {
+    fun error(): ValidationResult.Failure<E>? =
+        when (validationResult) {
             is ValidationResult.Failure -> validationResult as ValidationResult.Failure<E>
             ValidationResult.Success -> null
         }
-    }
 
     /**
      * Returns the error to display.
      *
      * If the input is still pure (unmodified), no error is displayed.
      */
-    fun displayError(): E? =
-        if (isPure) null else error()?.error
+    fun displayError(): E? = if (isPure) null else error()?.error
 
-    override fun hashCode(): Int {
-        return Objects.hash(value, isPure)
-    }
+    override fun hashCode(): Int = Objects.hash(value, isPure)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -68,9 +69,7 @@ abstract class FormzInput<T, E>(val value: T, val isPure: Boolean) {
         return true
     }
 
-    override fun toString(): String {
-        return "FormzInput(value=$value, isPure=$isPure, isValid=${isValid()}, error=${error()})"
-    }
+    override fun toString(): String = "FormzInput(value=$value, isPure=$isPure, isValid=${isValid()}, error=${error()})"
 }
 
 /**
@@ -80,16 +79,12 @@ object Formz {
     /**
      * Returns `true` if all provided inputs are valid.
      */
-    fun validate(inputs: List<FormzInput<*, *>>): Boolean {
-        return inputs.all { it.isValid() }
-    }
+    fun validate(inputs: List<FormzInput<*, *>>): Boolean = inputs.all { it.isValid() }
 
     /**
      * Returns `true` if all provided inputs are still pure.
      */
-    fun isPure(inputs: List<FormzInput<*, *>>): Boolean {
-        return inputs.all { it.isPure }
-    }
+    fun isPure(inputs: List<FormzInput<*, *>>): Boolean = inputs.all { it.isPure }
 }
 
 /**

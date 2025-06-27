@@ -94,10 +94,11 @@ fun RootUI() {
         }
     ) { innerPadding ->
         AllComponents(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(14.dp)
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(14.dp)
+                    .padding(innerPadding)
         )
     }
 }
@@ -118,21 +119,26 @@ fun AllComponents(modifier: Modifier = Modifier) {
                 Text(text = "Test")
             },
             isError = !testInputTextField.isValid(),
-            errorMassage = testInputTextField.displayError()
-                ?.getErrorMessage("Test"),
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
-            ),
-
-            modifier = Modifier.fillMaxWidth(),
+            errorMassage =
+                testInputTextField
+                    .displayError()
+                    ?.getErrorMessage("Test"),
+            keyboardOptions =
+                KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+            modifier = Modifier.fillMaxWidth()
         )
 
         PasswordTextField(
             value = passwordInputTextField.value,
             isError = !passwordInputTextField.isValid(),
-            errorMassage = passwordInputTextField.displayError()
-                ?.getErrorMessage("Password"),
+            errorMassage =
+                passwordInputTextField
+                    .displayError()
+                    ?.getErrorMessage("Password"),
             onValueChange = {
                 println("PasswordTextField= $it")
                 passwordInputTextField = passwordInputTextField.copy(it)
@@ -157,10 +163,8 @@ fun AllComponents(modifier: Modifier = Modifier) {
                 )
             }
         }
-
     }
 }
-
 
 @Composable
 private fun PasswordTextField(
@@ -175,20 +179,24 @@ private fun PasswordTextField(
     var showPassword by remember { mutableStateOf(value = false) }
 
     AppOutlinedTextField(
-        value = value, onValueChange = onValueChange,
+        value = value,
+        onValueChange = onValueChange,
         label = {
             Text(text = "password")
         },
         isError = isError,
         errorMassage = errorMassage,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
-        ),
-        visualTransformation = if (showPassword) {
-            VisualTransformation.None
-        } else {
-            PasswordVisualTransformation()
-        },
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+        visualTransformation =
+            if (showPassword) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
         trailingIcon = {
             if (showPassword) {
                 IconButton(onClick = { showPassword = false }) {
@@ -199,7 +207,8 @@ private fun PasswordTextField(
                 }
             } else {
                 IconButton(
-                    onClick = { showPassword = true }) {
+                    onClick = { showPassword = true }
+                ) {
                     Icon(
                         imageVector = Icons.Filled.VisibilityOff,
                         contentDescription = "hide_password"
@@ -208,13 +217,13 @@ private fun PasswordTextField(
             }
         },
         modifier = modifier.fillMaxWidth(),
-        keyboardActions = KeyboardActions(onDone = {
-            focusManager.clearFocus()
-            onClick()
-        })
+        keyboardActions =
+            KeyboardActions(onDone = {
+                focusManager.clearFocus()
+                onClick()
+            })
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable

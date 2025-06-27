@@ -7,11 +7,11 @@ class BooleanInput(
     value: Boolean = false,
     isPure: Boolean = true
 ) : FormzInput<Boolean, ValidationError>(value, isPure) {
-    override fun validator(value: Boolean): ValidationResult<ValidationError> {
-        return if (value) ValidationResult.Success else ValidationResult.Failure(ValidationError.NOT_SELECTED)
-    }
+    override fun validator(value: Boolean): ValidationResult<ValidationError> =
+        if (value) ValidationResult.Success else ValidationResult.Failure(ValidationError.NOT_SELECTED)
 
-    fun copy(value: Boolean, isPure: Boolean = false): BooleanInput {
-        return BooleanInput(value, isPure = isPure)
-    }
+    fun copy(
+        value: Boolean,
+        isPure: Boolean = false
+    ): BooleanInput = BooleanInput(value, isPure = isPure)
 }

@@ -11,13 +11,13 @@
     </style>
 
     <style name="NightAdjusted.Theme.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">false</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
     </style>
 
     <style name="Theme.Formz.Splash" parent="NightAdjusted.Theme.Splash">
         <item name="postSplashScreenTheme">@style/Theme.Formz</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
-        <item name="windowSplashScreenBackground" tools:ignore="NewApi">#FFFFFF</item>
+        <item name="windowSplashScreenBackground" tools:ignore="NewApi">#000000</item>
     </style>
 </resources>

@@ -3,12 +3,10 @@ package com.nareshchocha.sample.velidate
 enum class ValidationError {
     EMPTY,
     INVALID,
-    NOT_SELECTED,
+    NOT_SELECTED
 }
 
-fun List<ValidationError?>.combineErrors(): ValidationError? {
-    return this.filterNotNull().firstOrNull()
-}
+fun List<ValidationError?>.combineErrors(): ValidationError? = this.filterNotNull().firstOrNull()
 
 fun ValidationError.getErrorMessage(
     field: String,

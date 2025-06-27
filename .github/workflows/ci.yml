@@ -94,3 +94,71 @@ jobs:
           path: |
             **/build/outputs/aar/*.aar
             **/build/libs/*.jar
+  publish:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Extract version from Git tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION_NAME=${TAG#v}
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Detect release type
+        id: release_type
+        run: |
+          if [[ "${GITHUB_REF}" == *alpha* ]]; then
+            echo "release_stage=alpha" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == *beta* ]]; then
+            echo "release_stage=beta" >> $GITHUB_OUTPUT
+          else
+            echo "release_stage=stable" >> $GITHUB_OUTPUT
+          fi
+      - name: Restore gradle.properties
+        env:
+          GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
+        shell: bash
+        run: |
+          mkdir -p ~/.gradle/
+          echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
+          echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
+      - name: Publish to Maven Central
+        run: ./gradlew formz:publishAllPublicationsToMavenCentral --no-configuration-cache -PVERSION_NAME=${{ env.VERSION_NAME }}
+
+      - name: Upload GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            🚀 **Release:** `${{ github.ref_name }}`
+            🏷 **Type:** `${{ steps.release_type.outputs.release_stage }}`
+            
+            This release was automatically published from CI.
+          draft: false
+          prerelease: ${{ steps.release_type.outputs.release_stage != 'stable' }}
+          files: |
+            **/build/outputs/aar/*.aar
+            **/build/libs/*.jar

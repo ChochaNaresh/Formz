@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.arturbosch.detekt) apply false
     alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.maven.publish) apply false
 }
 
 val detektVersion = libs.versions.detekt.get()

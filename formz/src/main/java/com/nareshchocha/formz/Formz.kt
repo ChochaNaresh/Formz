@@ -78,13 +78,24 @@ abstract class FormzInput<T, E>(
 object Formz {
     /**
      * Returns `true` if all provided inputs are valid.
+     * This implementation short-circuits, stopping as soon as an invalid input is found.
      */
-    fun validate(inputs: List<FormzInput<*, *>>): Boolean = inputs.all { it.isValid() }
+    fun validate(inputs: List<FormzInput<*, *>>): Boolean {
+        for (input in inputs) {
+            if (!input.isValid()) return false
+        }
+        return true
+    }
 
     /**
      * Returns `true` if all provided inputs are still pure.
      */
-    fun isPure(inputs: List<FormzInput<*, *>>): Boolean = inputs.all { it.isPure }
+    fun isPure(inputs: List<FormzInput<*, *>>): Boolean {
+        for (input in inputs) {
+            if (!input.isPure) return false
+        }
+        return true
+    }
 }
 
 /**

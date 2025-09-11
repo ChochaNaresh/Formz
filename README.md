@@ -1,7 +1,11 @@
 
 # Formz
 
-[![](https://jitpack.io/v/ChochaNaresh/Formz.svg)](https://jitpack.io/#ChochaNaresh/Formz) [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21) ![Language](https://img.shields.io/badge/language-Kotlin-orange.svg) ![Language](https://img.shields.io/badge/Kotlin-2.1.0-blue)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.chochanaresh/formz.svg)](https://search.maven.org/artifact/io.github.chochanaresh/formz)
+![Build](https://github.com/ChochaNaresh/formz/actions/workflows/ci.yml/badge.svg)
+[![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
+![Language](https://img.shields.io/badge/language-Kotlin-orange.svg)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-blue)
 
 **Formz** is a lightweight validation framework for Android forms written in Kotlin. It provides a simple, yet powerful way to define, validate, and manage form inputs in your Android applications. The library is designed with immutability and performance in mind, ensuring that expensive validation logic is computed only once per input.
 
@@ -37,46 +41,32 @@ To include Formz in your project, simply add the source files to your Kotlin And
 
 ### How to add dependencies
 
-**Groovy**
+## 📦 Installation
+
+### Gradle (Groovy)
 ```groovy
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-		mavenCentral() // // For Formz library, this line is enough. Although, it has been published on jitpack as well
-		maven { url 'https://jitpack.io' } // //Make sure to add this in your project
-	}
+repositories {
+    mavenCentral()
 }
-```
 
-```groovy
 dependencies {
-    // ...
-    implementation 'com.github.ChochaNaresh:Formz:$libVersion'
-    // ...
+    implementation 'io.github.chochanaresh:formz:<latest-version>'
 }
 ```
 
-**kts**
+### Gradle (Kotlin DSL)
 ```kotlin
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral() // For Formz library, this line is enough. Although, it has been published on jitpack as well
-        maven { setUrl("https://jitpack.io") }  //Make sure to add this in your project
-    }
+repositories {
+    mavenCentral()
 }
-```
 
-```kotlin
 dependencies {
-    // ...
-    implementation("com.github.ChochaNaresh:Formz:$libVersion")
-    // ...
+    implementation("io.github.chochanaresh:formz:<latest-version>")
 }
 ```
 ## Version
-Where `$libVersion` = [![](https://jitpack.io/v/ChochaNaresh/Formz.svg)](https://jitpack.io/#ChochaNaresh/Formz)
+`latest-version` = [![libVersion](https://img.shields.io/maven-central/v/io.github.chochanaresh/formz.svg)](https://central.sonatype.com/artifact/io.github.chochanaresh/formz/versions)
+---
 
 ## Usage
 

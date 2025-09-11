@@ -3,46 +3,66 @@ package com.nareshchocha.formz
 import java.util.Objects
 
 /**
- * Represents the result of a validation.
+ * A sealed class representing the outcome of a validation process.
+ * It can either be a [Success] or a [Failure].
+ *
+ * @param E The type of the error content in case of a failure.
  */
 sealed class ValidationResult<out E> {
+    /**
+     * Represents a successful validation with no errors.
+     */
     data object Success : ValidationResult<Nothing>()
 
+    /**
+     * Represents a failed validation with a specific [error].
+     *
+     * @param E The type of the error.
+     * @property error The validation error details.
+     */
     data class Failure<E>(
         val error: E
     ) : ValidationResult<E>()
 }
 
 /**
- * Abstract class representing a form input that can be validated.
+ * An abstract representation of a single form input field with validation capabilities.
+ * It is designed to be immutable. State changes are represented by creating new instances.
  *
- * @param T The type of the input's value.
- * @param E The type of the validation error.
+ * @param T The type of the input's value (e.g., `String`, `Int`).
+ * @param E The type of the validation error (e.g., `String`, an enum).
+ * @property value The current value of the input.
+ * @property isPure `true` if the input has not been modified by the user; `false` otherwise.
  */
 abstract class FormzInput<T, E>(
     val value: T,
     val isPure: Boolean
 ) {
-    // Cache the validation result. Since 'value' is immutable, this is safe.
+    // The validation result is computed lazily and cached, as the input is immutable.
     private val validationResult: ValidationResult<E> by lazy { validator(value) }
 
     /**
-     * Validates the given [value] and returns a [ValidationResult].
+     * An abstract method that subclasses must implement to define validation logic.
      *
-     * @param value The value to validate.
-     * @return [ValidationResult.Success] if valid; otherwise, [ValidationResult.Failure].
+     * @param value The value to be validated.
+     * @return [ValidationResult.Success] if the value is valid, or [ValidationResult.Failure]
+     *         containing an error if it is invalid.
      */
     abstract fun validator(value: T): ValidationResult<E>
 
     /**
-     * Returns `true` if the cached validation result is [ValidationResult.Success],
-     * indicating that the input value is valid. If the input is still pure (unmodified),
-     * it is considered valid by default.
+     * Checks if the input is valid.
+     * An input is considered valid if it is `pure` or if its value passes the [validator].
+     *
+     * @return `true` if the input is valid, `false` otherwise.
      */
     fun isValid(): Boolean = if (isPure) true else validationResult == ValidationResult.Success
 
     /**
-     * Returns a [ValidationResult.Failure] if validation fails, or `null` if it succeeds.
+     * Retrieves the validation error if the input is invalid.
+     *
+     * @return A [ValidationResult.Failure] containing the error if validation fails;
+     *         otherwise, `null`.
      */
     fun error(): ValidationResult.Failure<E>? =
         when (validationResult) {
@@ -51,9 +71,10 @@ abstract class FormzInput<T, E>(
         }
 
     /**
-     * Returns the error to display.
+     * Returns the error content suitable for display in the UI.
+     * No error is returned for `pure` inputs to avoid showing errors before user interaction.
      *
-     * If the input is still pure (unmodified), no error is displayed.
+     * @return The error of type [E] if the input is dirty and invalid; otherwise, `null`.
      */
     fun displayError(): E? = if (isPure) null else error()?.error
 
@@ -73,12 +94,15 @@ abstract class FormzInput<T, E>(
 }
 
 /**
- * Provides helper methods to manage and validate [FormzInput] instances.
+ * A utility object providing helper functions for managing collections of [FormzInput] instances.
  */
 object Formz {
     /**
-     * Returns `true` if all provided inputs are valid.
-     * This implementation short-circuits, stopping as soon as an invalid input is found.
+     * Validates a list of [FormzInput]s.
+     * The validation short-circuits, returning `false` as soon as the first invalid input is found.
+     *
+     * @param inputs The list of [FormzInput] instances to validate.
+     * @return `true` if all inputs are valid, `false` otherwise.
      */
     fun validate(inputs: List<FormzInput<*, *>>): Boolean {
         for (input in inputs) {
@@ -88,7 +112,11 @@ object Formz {
     }
 
     /**
-     * Returns `true` if all provided inputs are still pure.
+     * Checks if all inputs in a list are `pure`.
+     * The check short-circuits, returning `false` as soon as the first dirty input is found.
+     *
+     * @param inputs The list of [FormzInput] instances to check.
+     * @return `true` if all inputs are pure, `false` otherwise.
      */
     fun isPure(inputs: List<FormzInput<*, *>>): Boolean {
         for (input in inputs) {
@@ -99,45 +127,53 @@ object Formz {
 }
 
 /**
- * Interface to automatically handle validation for all [FormzInput] instances.
+ * An interface for classes that group multiple [FormzInput]s, such as a form's state.
+ * Implementing this interface provides convenient access to the collective validation status.
  *
  * Example usage:
  * ```kotlin
- * class LoginFormState(
- *     val username = Username(isPure = true),
- *     val password = Password(isPure = true)
+ * data class LoginFormState(
+ *     val username: Username = Username(""),
+ *     val password: Password = Password("")
  * ) : FormzInterface {
- *
  *     override val inputs: List<FormzInput<*, *>> = listOf(username, password)
  * }
  * ```
  */
 interface FormzInterface {
     /**
-     * All the [FormzInput] instances that need to be validated.
+     * A list containing all the [FormzInput] instances managed by this container.
      */
     val inputs: List<FormzInput<*, *>>
 
     /**
-     * Returns `true` if all the inputs are valid.
+     * A computed property that indicates whether all [inputs] are valid.
+     *
+     * @return `true` if all inputs are valid, `false` otherwise.
      */
     val isValid: Boolean
         get() = Formz.validate(inputs)
 
     /**
-     * Returns `true` if at least one of the inputs is invalid.
+     * A computed property that is the inverse of [isValid].
+     *
+     * @return `true` if at least one input is invalid, `false` otherwise.
      */
     val isNotValid: Boolean
         get() = !isValid
 
     /**
-     * Returns `true` if all the inputs are pure.
+     * A computed property that indicates whether all [inputs] are pure.
+     *
+     * @return `true` if all inputs are pure, `false` otherwise.
      */
     val isPure: Boolean
         get() = Formz.isPure(inputs)
 
     /**
-     * Returns `true` if at least one of the inputs has been modified (is dirty).
+     * A computed property that indicates whether any of the [inputs] is dirty (not pure).
+     *
+     * @return `true` if at least one input is dirty, `false` otherwise.
      */
     val isDirty: Boolean
         get() = !isPure

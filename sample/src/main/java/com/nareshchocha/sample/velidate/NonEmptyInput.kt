@@ -1,17 +1,14 @@
 package com.nareshchocha.sample.velidate
 
-import com.nareshchocha.formz.FormzInput
-import com.nareshchocha.formz.ValidationResult
-
 class NonEmptyInput(
     value: String = "",
     isPure: Boolean = true
-) : FormzInput<String, ValidationError>(value, isPure) {
-    override fun validator(value: String): ValidationResult<ValidationError> =
-        if (value.isNotBlank()) ValidationResult.Success else ValidationResult.Failure(ValidationError.EMPTY)
+) : FormFieldValidator<String, ValidationError>(value, isPure) {
+    override fun validator(value: String): ValidationState<ValidationError> =
+        if (value.isNotBlank()) ValidationState.Success else ValidationState.Failure(ValidationError.EMPTY)
 
-    fun copy(
+    override fun copy(
         value: String,
-        isPure: Boolean = false
+        isPure: Boolean
     ): NonEmptyInput = NonEmptyInput(value, isPure = isPure)
 }
